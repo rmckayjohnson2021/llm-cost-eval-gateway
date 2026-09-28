@@ -1,0 +1,31 @@
+policies:
+  fast_only:
+    description: Route every automatable request to the lowest-cost model.
+    fast_model: mock-fast
+    strong_model: mock-strong
+    default_route: fast_model
+    human_review_signals: []
+    strong_model_signals: []
+
+  strong_only:
+    description: Route every automatable request to the stronger model.
+    fast_model: mock-fast
+    strong_model: mock-strong
+    default_route: strong_model
+    human_review_signals: []
+    strong_model_signals: []
+
+  routed:
+    description: Route routine work to fast model, high-impact work to strong model, and ambiguous work to human review.
+    fast_model: mock-fast
+    strong_model: mock-strong
+    default_route: fast_model
+    human_review_signals:
+      - ambiguous
+      - unclear
+      - conflicting
+    strong_model_signals:
+      - sev1
+      - outage
+      - executive
+      - payroll

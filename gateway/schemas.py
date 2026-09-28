@@ -14,7 +14,7 @@ class ModelRequest(BaseModel):
     input_text: str
     max_input_tokens: int = 4000
     max_output_tokens: int = 1000
-    route_policy: str = "rules_v1"
+    route_policy: str = "routed"
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

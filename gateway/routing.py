@@ -1,13 +1,36 @@
-﻿from gateway.schemas import ModelRequest, RoutingDecision
+from gateway.policies import contains_signal, get_policy
+from gateway.schemas import ModelRequest, RoutingDecision
 
 
 def choose_route(request: ModelRequest) -> RoutingDecision:
+    policy = get_policy(request.route_policy)
     text = request.input_text.lower()
 
-    if "ambiguous" in text or "unclear" in text:
-        return RoutingDecision(route="human_review", model=None, reason="Ambiguous or unclear evidence.")
+    review_signal = contains_signal(text, policy.human_review_signals)
+    if review_signal:
+        return RoutingDecision(
+            route="human_review",
+            model=None,
+            reason=f"Policy '{request.route_policy}' matched human-review signal: {review_signal}.",
+        )
 
-    if "sev1" in text or "outage" in text:
-        return RoutingDecision(route="strong_model", model="mock-strong", reason="High-impact language detected.")
+    strong_signal = contains_signal(text, policy.strong_model_signals)
+    if strong_signal:
+        return RoutingDecision(
+            route="strong_model",
+            model=policy.strong_model,
+            reason=f"Policy '{request.route_policy}' matched strong-model signal: {strong_signal}.",
+        )
 
-    return RoutingDecision(route="fast_model", model="mock-fast", reason="Routine request with no high-risk signals.")
+    if policy.default_route == "strong_model":
+        return RoutingDecision(
+            route="strong_model",
+            model=policy.strong_model,
+            reason=f"Policy '{request.route_policy}' defaulted to strong model.",
+        )
+
+    return RoutingDecision(
+        route="fast_model",
+        model=policy.fast_model,
+        reason=f"Policy '{request.route_policy}' defaulted to fast model.",
+    )
