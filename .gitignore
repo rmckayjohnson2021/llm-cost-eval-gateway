@@ -6,5 +6,6 @@ __pycache__/
 .ruff_cache/
 *.sqlite
 *.sqlite3
+*.db
 data/ledger.db
 reports/tmp/

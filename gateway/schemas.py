@@ -22,8 +22,14 @@ class ModelResponse(BaseModel):
     run_id: str
     route: Route
     status: Status
+    provider: str = "mock"
+    model: str | None = None
     text: str = ""
     route_reason: str
+    attempts: int = 0
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    reserved_cost_usd: float = 0.0
     estimated_cost_usd: float = 0.0
     latency_ms: int = 0
     error_type: str | None = None
@@ -31,12 +37,21 @@ class ModelResponse(BaseModel):
 
 class UsageRecord(BaseModel):
     run_id: str
+    app_name: str
+    workflow_version: str
+    simulated_team_id: str
     provider: str
-    model: str
+    model: str | None
+    route: Route
+    status: Status
+    attempts: int
     input_tokens: int | None = None
     output_tokens: int | None = None
+    reserved_cost_usd: float
     estimated_cost_usd: float
     pricing_version: str
+    latency_ms: int
+    error_type: str | None = None
 
 
 class RoutingDecision(BaseModel):

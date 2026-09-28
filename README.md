@@ -8,9 +8,13 @@ LLM Cost and Evaluation Gateway is a reusable execution layer for AI application
 
 This project demonstrates the operational layer needed to run AI workflows with cost control and measurable quality.
 
-## Employer Signal
+## Project Status
 
-> I can build the operational layer that makes AI applications measurable, reliable, and cost-controlled.
+This repo is a working version 1 backend gateway with mock-provider execution, budget reservation, retry handling, SQLite usage logging, and a runnable demo report. It is designed to become the companion execution layer for RunbookOps AI.
+
+## Why This Exists
+
+AI applications often start by calling a model directly from the product workflow. That works for prototypes, but teams quickly need shared controls around model choice, cost exposure, retries, evaluation, and auditability. This gateway demonstrates those controls as a reusable layer.
 
 ## What It Does
 
@@ -23,6 +27,33 @@ This project demonstrates the operational layer needed to run AI workflows with 
 - Handles timeouts and bounded retries.
 - Supports mock-provider tests without paid API calls.
 - Compares strong-only, fast-only, and routed configurations.
+
+## Two-Minute Demo Path
+
+1. Run the gateway demo.
+2. Inspect the generated Markdown report.
+3. Review the SQLite ledger rows.
+4. Run the tests to confirm budget, retry, routing, and ledger behavior.
+
+```powershell
+uv run python examples/run_gateway_demo.py
+```
+
+Demo output:
+
+- Report: [`reports/gateway_demo_report.md`](reports/gateway_demo_report.md)
+- Ledger: `reports/gateway_demo_ledger.db` local generated file, ignored by Git
+
+## Architecture Decisions
+
+| Decision | Reason |
+| --- | --- |
+| Central executor | Keeps product workflows from calling providers directly |
+| Pre-call budget reservation | Blocks over-budget requests before inference spend |
+| Budget commit/release | Prevents failed calls from leaving stale reservations |
+| SQLite usage ledger | Provides local auditability without cloud services |
+| Mock provider | Enables repeatable tests without paid API calls |
+| Versioned pricing table | Makes cost estimates explainable and reproducible |
 
 ## What It Does Not Do
 
@@ -75,6 +106,20 @@ Edit `.env` and add local values. Do not commit `.env`.
 uv run pytest
 uv run ruff check .
 ```
+
+## Run Demo Report
+
+```powershell
+uv run python examples/run_gateway_demo.py
+```
+
+The demo executes three representative requests:
+
+- routine request routed to the fast model
+- high-impact request routed to the strong model
+- ambiguous request routed to human review
+
+It writes a Markdown report and a local SQLite ledger so the cost, routing, and audit trail are visible.
 
 ## Core Flow
 
