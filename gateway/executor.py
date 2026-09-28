@@ -4,7 +4,7 @@ from uuid import uuid4
 from gateway.budgets import BudgetState
 from gateway.ledger import record_usage
 from gateway.pricing import PRICING_VERSION, estimate_cost_usd
-from gateway.providers import MockProvider
+from gateway.providers import Provider, create_provider_from_env
 from gateway.retries import is_retryable
 from gateway.routing import choose_route
 from gateway.schemas import ModelRequest, ModelResponse, UsageRecord
@@ -39,7 +39,7 @@ def _record(request: ModelRequest, response: ModelResponse, ledger_path: str | N
 
 def execute(
     request: ModelRequest,
-    provider: MockProvider | None = None,
+    provider: Provider | None = None,
     budget: BudgetState | None = None,
     *,
     ledger_path: str | None = None,
@@ -47,7 +47,8 @@ def execute(
 ) -> ModelResponse:
     run_id = str(uuid4())
     start = time.perf_counter()
-    provider = provider or MockProvider()
+    provider = provider or create_provider_from_env()
+    provider_name = getattr(provider, "name", "unknown")
     budget = budget or BudgetState(limit_usd=20.0)
     decision = choose_route(request)
 
@@ -56,6 +57,7 @@ def execute(
             run_id=run_id,
             route="human_review",
             status="human_review",
+            provider=provider_name,
             route_reason=decision.reason,
             latency_ms=int((time.perf_counter() - start) * 1000),
         )
@@ -73,6 +75,7 @@ def execute(
             run_id=run_id,
             route=decision.route,
             status="blocked",
+            provider=provider_name,
             model=decision.model,
             route_reason="Budget reservation failed before provider call.",
             reserved_cost_usd=reserved,
@@ -108,6 +111,7 @@ def execute(
         run_id=run_id,
         route=decision.route,
         status=status,
+        provider=provider_name,
         model=decision.model,
         text=result.text,
         route_reason=decision.reason,

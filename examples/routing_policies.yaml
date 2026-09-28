@@ -29,3 +29,18 @@ policies:
       - outage
       - executive
       - payroll
+
+  openai_routed:
+    description: Optional real-provider policy that resolves model aliases from DEFAULT_FAST_MODEL and DEFAULT_STRONG_MODEL.
+    fast_model: openai-fast
+    strong_model: openai-strong
+    default_route: fast_model
+    human_review_signals:
+      - ambiguous
+      - unclear
+      - conflicting
+    strong_model_signals:
+      - sev1
+      - outage
+      - executive
+      - payroll

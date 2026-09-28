@@ -3,6 +3,8 @@
 PRICES = {
     "mock-fast": {"input_per_1k": 0.001, "output_per_1k": 0.002},
     "mock-strong": {"input_per_1k": 0.01, "output_per_1k": 0.03},
+    "openai-fast": {"input_per_1k": 0.001, "output_per_1k": 0.002},
+    "openai-strong": {"input_per_1k": 0.01, "output_per_1k": 0.03},
 }
 
 

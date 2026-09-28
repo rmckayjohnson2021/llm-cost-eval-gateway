@@ -10,7 +10,7 @@ This project demonstrates the operational layer needed to run AI workflows with 
 
 ## Project Status
 
-This repo is a working version 1 backend gateway with mock-provider execution, configuration-driven routing policies, budget reservation, retry handling, SQLite usage logging, and a runnable demo report. It is designed to become the companion execution layer for RunbookOps AI.
+This repo is a working version 1 backend gateway with mock-provider execution, optional OpenAI-backed execution, configuration-driven routing policies, budget reservation, retry handling, SQLite usage logging, and a runnable demo report. It is designed to become the companion execution layer for RunbookOps AI.
 
 ## Why This Exists
 
@@ -26,6 +26,7 @@ AI applications often start by calling a model directly from the product workflo
 - Applies configurable route policies.
 - Handles timeouts and bounded retries.
 - Supports mock-provider tests without paid API calls.
+- Supports optional OpenAI provider mode when explicitly configured.
 - Compares strong-only, fast-only, and routed configurations.
 
 ## Two-Minute Demo Path
@@ -57,6 +58,7 @@ Demo output:
 | SQLite usage ledger | Provides local auditability without cloud services |
 | Markdown ledger summaries | Turns stored usage rows into reviewer-friendly cost and routing reports |
 | Mock provider | Enables repeatable tests without paid API calls |
+| Optional OpenAI provider | Allows real provider execution without changing gateway flow |
 | Versioned pricing table | Makes cost estimates explainable and reproducible |
 
 ## Routing Policies
@@ -70,6 +72,7 @@ The included policies are:
 | `fast_only` | Sends every automatable request to the lower-cost model |
 | `strong_only` | Sends every automatable request to the stronger model |
 | `routed` | Sends routine work to fast model, high-impact work to strong model, and ambiguous work to human review |
+| `openai_routed` | Uses OpenAI model aliases from `.env` while keeping the same routed behavior |
 
 Application code selects a policy with the request field:
 
@@ -78,6 +81,33 @@ ModelRequest(..., route_policy="routed")
 ```
 
 That allows teams to compare cost, quality, and risk tradeoffs without rewriting the product workflow.
+
+## Provider Modes
+
+Mock mode is the default and does not make paid API calls:
+
+```ini
+GATEWAY_PROVIDER=mock
+```
+
+OpenAI mode is opt-in:
+
+```ini
+GATEWAY_PROVIDER=openai
+OPENAI_API_KEY=your_api_key_here
+DEFAULT_FAST_MODEL=gpt-5-mini
+DEFAULT_STRONG_MODEL=gpt-5-mini
+```
+
+Then use the OpenAI policy alias:
+
+```python
+ModelRequest(..., route_policy="openai_routed")
+```
+
+The gateway still performs the same routing, budget reservation, retry handling, ledger logging, and reporting. The only change is the provider used for model execution.
+
+Cost estimates are local gateway estimates for budget control and demos. They do not replace provider billing records.
 
 ## What It Does Not Do
 
@@ -91,6 +121,7 @@ That allows teams to compare cost, quality, and risk tradeoffs without rewriting
 - Python
 - Pydantic
 - SQLite
+- OpenAI SDK
 - pytest
 - Ruff
 - YAML configuration
