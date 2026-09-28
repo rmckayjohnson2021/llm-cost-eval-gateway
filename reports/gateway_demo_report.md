@@ -35,3 +35,4 @@ This report runs the same synthetic requests through three routing policies: `fa
 
 - Rows written: `9`
 - Ledger path: `reports/gateway_demo_ledger.db`
+- Summary report: [`reports\ledger_summary_report.md`](reports\ledger_summary_report.md)

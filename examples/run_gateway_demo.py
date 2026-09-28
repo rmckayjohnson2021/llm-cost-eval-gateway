@@ -9,9 +9,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from gateway.budgets import BudgetState
 from gateway.executor import execute
 from gateway.ledger import fetch_usage
+from gateway.reporting import render_usage_summary_report
 from gateway.schemas import ModelRequest, ModelResponse
 
 REPORT_PATH = Path("reports/gateway_demo_report.md")
+LEDGER_SUMMARY_PATH = Path("reports/ledger_summary_report.md")
 LEDGER_PATH = "reports/gateway_demo_ledger.db"
 POLICIES = ["fast_only", "strong_only", "routed"]
 
@@ -66,6 +68,7 @@ def main() -> None:
         ]
 
     rows = fetch_usage(LEDGER_PATH)
+    LEDGER_SUMMARY_PATH.write_text(render_usage_summary_report(rows), encoding="utf-8")
 
     detail_rows = []
     for policy, responses in responses_by_policy.items():
@@ -117,6 +120,7 @@ def main() -> None:
                 "",
                 f"- Rows written: `{len(rows)}`",
                 f"- Ledger path: `{LEDGER_PATH}`",
+                f"- Summary report: [`{LEDGER_SUMMARY_PATH}`]({LEDGER_SUMMARY_PATH})",
             ]
         )
         + "\n",

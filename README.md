@@ -43,6 +43,7 @@ uv run python examples/run_gateway_demo.py
 Demo output:
 
 - Report: [`reports/gateway_demo_report.md`](reports/gateway_demo_report.md)
+- Ledger summary: [`reports/ledger_summary_report.md`](reports/ledger_summary_report.md)
 - Ledger: `reports/gateway_demo_ledger.db` local generated file, ignored by Git
 
 ## Architecture Decisions
@@ -54,6 +55,7 @@ Demo output:
 | Budget commit/release | Prevents failed calls from leaving stale reservations |
 | YAML routing policies | Lets teams tune model choice without changing app code |
 | SQLite usage ledger | Provides local auditability without cloud services |
+| Markdown ledger summaries | Turns stored usage rows into reviewer-friendly cost and routing reports |
 | Mock provider | Enables repeatable tests without paid API calls |
 | Versioned pricing table | Makes cost estimates explainable and reproducible |
 
@@ -143,7 +145,7 @@ The demo executes three representative requests under three routing policies:
 - `strong_only`
 - `routed`
 
-It writes a Markdown report and a local SQLite ledger so the cost, routing, and audit trail are visible.
+It writes a policy comparison report, a ledger summary report, and a local SQLite ledger so the cost, routing, and audit trail are visible.
 
 ## Core Flow
 
