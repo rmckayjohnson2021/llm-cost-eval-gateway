@@ -353,7 +353,7 @@ Metrics:
 
 ## Companion Project
 
-This gateway is designed to support `team-ai-incident-triage`, a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
+This gateway is designed to support [`team-ai-incident-triage`](https://github.com/rmckayjohnson2021/team-ai-incident-triage), a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
 
 ## Limitations
 
