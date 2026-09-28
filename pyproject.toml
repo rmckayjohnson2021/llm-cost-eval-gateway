@@ -1,0 +1,23 @@
+[project]
+name = "llm-cost-eval-gateway"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Ryan Johnson", email = "rmckayjohnson2021@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.13.5",
+    "pytest>=9.1.1",
+    "python-dotenv>=1.2.3",
+    "pyyaml>=6.0.3",
+    "ruff>=0.16.9",
+]
+
+[project.scripts]
+llm-cost-eval-gateway = "llm_cost_eval_gateway:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
