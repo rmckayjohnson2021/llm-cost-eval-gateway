@@ -365,3 +365,7 @@ This is a portfolio demonstration. Production use would require:
 - monitoring
 - incident response procedures
 - larger evaluation suites
+
+## Development Note
+
+This project was built by Ryan Johnson with AI-assisted development support from OpenAI Codex. I directed the product goals, architecture, testing, review, and iteration of the implementation. All code, documentation, and outputs were co-developed using Codex. 
