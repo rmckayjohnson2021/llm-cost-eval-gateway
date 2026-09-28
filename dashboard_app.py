@@ -324,7 +324,7 @@ with st.sidebar:
     spend_window = st.selectbox(
         "Spend window",
         ["All time", "Last hour", "Last 24 hours", "Last 7 days", "Last 30 days"],
-        index=4,
+        index=0,
         help="Filter spend, savings, charts, and ledger rows to a recent time window.",
     )
     if st.button("Refresh data", icon=":material/refresh:", width="stretch"):

@@ -91,6 +91,19 @@ The dashboard is designed to answer the practical questions teams ask when LLM u
 | Which models and routes are being used? | Calls by model and calls by route charts |
 | Can the raw audit trail be inspected? | Raw usage ledger table |
 
+## Screenshots
+
+| CostOps dashboard overview | Cost drivers and routing mix |
+| --- | --- |
+| ![CostOps dashboard overview](docs/screenshots/costops-dashboard-overview.png) | ![CostOps cost drivers and routing mix](docs/screenshots/costops-cost-drivers.png) |
+
+To refresh screenshots while the dashboard is running locally:
+
+```powershell
+$env:EDGE_PATH = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+node scripts\capture_dashboard_screenshots.js
+```
+
 ## Architecture Decisions
 
 | Decision | Reason |
