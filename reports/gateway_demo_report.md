@@ -15,5 +15,5 @@
 
 ## Ledger
 
-- Rows written: `6`
+- Rows written: `3`
 - Ledger path: `reports/gateway_demo_ledger.db`

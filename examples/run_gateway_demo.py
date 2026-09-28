@@ -26,6 +26,10 @@ def demo_request(case_id: str, input_text: str) -> ModelRequest:
 
 
 def main() -> None:
+    ledger_file = Path(LEDGER_PATH)
+    if ledger_file.exists():
+        ledger_file.unlink()
+
     budget = BudgetState(limit_usd=0.25)
     requests = [
         demo_request("case-routine", "Routine import issue with bounded impact."),
@@ -69,7 +73,8 @@ def main() -> None:
                 f"- Rows written: `{len(rows)}`",
                 f"- Ledger path: `{LEDGER_PATH}`",
             ]
-        ),
+        )
+        + "\n",
         encoding="utf-8",
     )
     print(f"Wrote {REPORT_PATH}")
