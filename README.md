@@ -178,6 +178,43 @@ The demo executes three representative requests under three routing policies:
 
 It writes a policy comparison report, a ledger summary report, and a local SQLite ledger so the cost, routing, and audit trail are visible.
 
+## Run API Server
+
+The gateway also exposes a small HTTP API. `GET /health` is public; `/v1/*` endpoints require an API key header.
+
+Set a local API key:
+
+```ini
+GATEWAY_API_KEY=local-dev-key
+```
+
+Start the server:
+
+```powershell
+uv run uvicorn gateway.api:app --reload --port 8600
+```
+
+Call the API:
+
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri http://127.0.0.1:8600/v1/execute `
+  -Headers @{ "X-Gateway-API-Key" = "local-dev-key" } `
+  -ContentType "application/json" `
+  -Body '{"app_name":"demo","workflow_version":"v1","simulated_user_id":"user-1","simulated_team_id":"team-1","input_text":"routine import issue","route_policy":"routed"}'
+```
+
+Endpoints:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Service health check |
+| `POST` | `/v1/execute` | Execute one gateway model request |
+| `GET` | `/v1/usage` | Return raw usage ledger rows |
+| `GET` | `/v1/usage/summary` | Return grouped usage summary as JSON |
+| `GET` | `/v1/usage/summary.md` | Return grouped usage summary as Markdown |
+
 ## Core Flow
 
 Every request should follow this sequence:
