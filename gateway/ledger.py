@@ -13,6 +13,8 @@ def init_ledger(path: str = "data/ledger.db") -> None:
             """
             CREATE TABLE IF NOT EXISTS usage_ledger (
                 run_id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL DEFAULT '',
+                incident_type TEXT,
                 app_name TEXT NOT NULL,
                 workflow_version TEXT NOT NULL,
                 provider TEXT NOT NULL,
@@ -30,6 +32,11 @@ def init_ledger(path: str = "data/ledger.db") -> None:
             )
             """
         )
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(usage_ledger)").fetchall()}
+        if "created_at" not in columns:
+            conn.execute("ALTER TABLE usage_ledger ADD COLUMN created_at TEXT NOT NULL DEFAULT ''")
+        if "incident_type" not in columns:
+            conn.execute("ALTER TABLE usage_ledger ADD COLUMN incident_type TEXT")
 
 
 def record_usage(record: UsageRecord, path: str = "data/ledger.db") -> None:
@@ -39,6 +46,8 @@ def record_usage(record: UsageRecord, path: str = "data/ledger.db") -> None:
             """
             INSERT INTO usage_ledger (
                 run_id,
+                created_at,
+                incident_type,
                 app_name,
                 workflow_version,
                 provider,
@@ -54,10 +63,12 @@ def record_usage(record: UsageRecord, path: str = "data/ledger.db") -> None:
                 latency_ms,
                 error_type
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 record.run_id,
+                record.created_at,
+                record.incident_type,
                 record.app_name,
                 record.workflow_version,
                 record.provider,
@@ -84,6 +95,8 @@ def fetch_usage(path: str = "data/ledger.db") -> list[dict]:
             """
             SELECT
                 run_id,
+                created_at,
+                incident_type,
                 app_name,
                 workflow_version,
                 provider,

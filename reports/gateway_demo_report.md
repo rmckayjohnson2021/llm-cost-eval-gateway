@@ -12,17 +12,17 @@ This report runs the same synthetic requests through three routing policies: `fa
 
 ## Request-Level Results
 
-| Policy | Case | Route | Status | Model | Attempts | Reserved | Estimated | Reason |
-| --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |
-| fast_only | case-routine | fast_model | success | mock-fast | 1 | $0.006000 | $0.000026 | Policy 'fast_only' defaulted to fast model. |
-| fast_only | case-sev1 | fast_model | success | mock-fast | 1 | $0.006000 | $0.000028 | Policy 'fast_only' defaulted to fast model. |
-| fast_only | case-review | fast_model | success | mock-fast | 1 | $0.006000 | $0.000027 | Policy 'fast_only' defaulted to fast model. |
-| strong_only | case-routine | strong_model | success | mock-strong | 1 | $0.070000 | $0.000360 | Policy 'strong_only' defaulted to strong model. |
-| strong_only | case-sev1 | strong_model | success | mock-strong | 1 | $0.070000 | $0.000380 | Policy 'strong_only' defaulted to strong model. |
-| strong_only | case-review | strong_model | success | mock-strong | 1 | $0.070000 | $0.000370 | Policy 'strong_only' defaulted to strong model. |
-| routed | case-routine | fast_model | success | mock-fast | 1 | $0.006000 | $0.000026 | Policy 'routed' defaulted to fast model. |
-| routed | case-sev1 | strong_model | success | mock-strong | 1 | $0.070000 | $0.000380 | Policy 'routed' matched strong-model signal: sev1. |
-| routed | case-review | human_review | human_review | - | 0 | $0.000000 | $0.000000 | Policy 'routed' matched human-review signal: ambiguous. |
+| Policy | Case | Incident Type | Route | Status | Model | Attempts | Reserved | Estimated | Reason |
+| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |
+| fast_only | case-routine | failed_import | fast_model | success | mock-fast | 1 | $0.006000 | $0.000026 | Policy 'fast_only' defaulted to fast model. |
+| fast_only | case-sev1 | ambiguous_outage | fast_model | success | mock-fast | 1 | $0.006000 | $0.000028 | Policy 'fast_only' defaulted to fast model. |
+| fast_only | case-review | schema_change | fast_model | success | mock-fast | 1 | $0.006000 | $0.000027 | Policy 'fast_only' defaulted to fast model. |
+| strong_only | case-routine | failed_import | strong_model | success | mock-strong | 1 | $0.070000 | $0.000360 | Policy 'strong_only' defaulted to strong model. |
+| strong_only | case-sev1 | ambiguous_outage | strong_model | success | mock-strong | 1 | $0.070000 | $0.000380 | Policy 'strong_only' defaulted to strong model. |
+| strong_only | case-review | schema_change | strong_model | success | mock-strong | 1 | $0.070000 | $0.000370 | Policy 'strong_only' defaulted to strong model. |
+| routed | case-routine | failed_import | fast_model | success | mock-fast | 1 | $0.006000 | $0.000026 | Policy 'routed' defaulted to fast model. |
+| routed | case-sev1 | ambiguous_outage | strong_model | success | mock-strong | 1 | $0.070000 | $0.000380 | Policy 'routed' matched strong-model signal: sev1. |
+| routed | case-review | schema_change | human_review | human_review | - | 0 | $0.000000 | $0.000000 | Policy 'routed' matched human-review signal: ambiguous. |
 
 ## Budget State
 

@@ -4,7 +4,11 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 from gateway.executor import execute
 from gateway.ledger import fetch_usage
-from gateway.reporting import render_usage_summary_report, summarize_usage
+from gateway.reporting import (
+    render_usage_summary_report,
+    summarize_optimization_savings,
+    summarize_usage,
+)
 from gateway.schemas import ModelRequest, ModelResponse
 from gateway.settings import api_key, ledger_path
 
@@ -45,7 +49,9 @@ def usage_summary() -> dict[str, Any]:
         "total_rows": len(rows),
         "by_route": summarize_usage(rows, "route"),
         "by_model": summarize_usage(rows, "model"),
+        "by_incident_type": summarize_usage(rows, "incident_type"),
         "by_status": summarize_usage(rows, "status"),
+        "optimization_savings": summarize_optimization_savings(rows),
     }
 
 

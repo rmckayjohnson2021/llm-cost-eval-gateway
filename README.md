@@ -1,16 +1,34 @@
+<p align="center">
+  <img src="app/assets/gateway_logo.svg" alt="CostOps Gateway" width="420">
+</p>
+
 # LLM Cost and Evaluation Gateway
 
 Repository: https://github.com/rmckayjohnson2021/llm-cost-eval-gateway
 
 ## Overview
 
-LLM Cost and Evaluation Gateway is a reusable execution layer for AI applications. It centralizes model calls, records usage, enforces budgets before provider calls, applies routing rules, handles bounded retries, and supports evaluation across model configurations.
+LLM Cost and Evaluation Gateway is a reusable execution layer for AI applications. It centralizes model calls, records usage, enforces budgets before provider calls, applies routing rules, handles bounded retries, and supports evaluation across model configurations. All cost fields are estimated USD values based on the local pricing table.
 
-This project demonstrates the operational layer needed to run AI workflows with cost control and measurable quality.
+This project demonstrates the operational layer needed to run AI workflows with cost control, measurable quality, and explainable routing decisions.
+
+## Business Value Snapshot
+
+The included projected ledger models a synthetic month of `12,000` RunbookOps-style incident triage requests. It compares routed execution against a blind strong-model-only strategy so the dashboard can show the financial impact of model optimization.
+
+| Metric | Projected Monthly Value |
+| --- | ---: |
+| Routed estimated cost | `$671.73` |
+| Strong-only baseline | `$1,593.62` |
+| Estimated routing savings | `$921.89` |
+| Savings rate | `57.8%` |
+| Highest-cost incident type | `schema_change` |
+
+The goal is not to claim provider billing accuracy. The goal is to show how a gateway can make LLM spend observable, attributable, and optimizable before teams scale usage across workflows.
 
 ## Project Status
 
-This repo is a working version 1 backend gateway with mock-provider execution, optional OpenAI-backed execution, configuration-driven routing policies, budget reservation, retry handling, SQLite usage logging, and a runnable demo report. It is designed to become the companion execution layer for RunbookOps AI.
+This repo is a working version 1 gateway with mock-provider execution, optional OpenAI-backed execution, configuration-driven routing policies, API-key protected local endpoints, budget reservation, retry handling, SQLite usage logging, a usage dashboard, projected ledger seeding, and runnable demo reports. It is designed to become the companion execution layer for RunbookOps AI.
 
 ## Why This Exists
 
@@ -28,14 +46,26 @@ AI applications often start by calling a model directly from the product workflo
 - Supports mock-provider tests without paid API calls.
 - Supports optional OpenAI provider mode when explicitly configured.
 - Compares strong-only, fast-only, and routed configurations.
+- Tracks estimated routing savings against a strong-only baseline.
+- Slices cost, route, model, and status by incident type.
+- Provides a Streamlit usage dashboard for local cost analysis.
 
-## Two-Minute Demo Path
+## Fast Demo Path
 
-1. Run the gateway demo.
-2. Inspect the generated Markdown report.
-3. Compare `fast_only`, `strong_only`, and `routed` behavior.
-4. Review the SQLite ledger rows.
-5. Run the tests to confirm budget, retry, routing, and ledger behavior.
+1. Seed projected usage rows to demonstrate the dashboard without API spend.
+2. Run the Streamlit dashboard.
+3. Review projected monthly savings, annualized savings, and spend by incident type.
+4. Run the gateway demo to compare `fast_only`, `strong_only`, and `routed` behavior.
+5. Run the tests to confirm budget, retry, routing, API, dashboard, and ledger behavior.
+
+```powershell
+C:\Users\rmcka\.local\bin\uv.exe run python examples\seed_projected_ledger.py
+C:\Users\rmcka\.local\bin\uv.exe run streamlit run dashboard_app.py --server.port 8502
+```
+
+Then open `http://127.0.0.1:8502`.
+
+You can still run the smaller policy comparison demo:
 
 ```powershell
 uv run python examples/run_gateway_demo.py
@@ -45,7 +75,21 @@ Demo output:
 
 - Report: [`reports/gateway_demo_report.md`](reports/gateway_demo_report.md)
 - Ledger summary: [`reports/ledger_summary_report.md`](reports/ledger_summary_report.md)
+- Projected ledger summary: [`reports/projected_ledger_summary.md`](reports/projected_ledger_summary.md)
 - Ledger: `reports/gateway_demo_ledger.db` local generated file, ignored by Git
+
+## Dashboard Highlights
+
+The dashboard is designed to answer the practical questions teams ask when LLM usage starts growing:
+
+| Question | Dashboard View |
+| --- | --- |
+| How much did routed execution cost? | Estimated cost KPI |
+| What would blind strong-model usage have cost? | Strong-only baseline KPI |
+| How much did routing save? | Routing savings, savings rate, monthly run rate, annualized savings |
+| Which incident types drive the most cost? | Cost by incident type chart and summary table |
+| Which models and routes are being used? | Calls by model and calls by route charts |
+| Can the raw audit trail be inspected? | Raw usage ledger table |
 
 ## Architecture Decisions
 
@@ -57,6 +101,8 @@ Demo output:
 | YAML routing policies | Lets teams tune model choice without changing app code |
 | SQLite usage ledger | Provides local auditability without cloud services |
 | Markdown ledger summaries | Turns stored usage rows into reviewer-friendly cost and routing reports |
+| Streamlit dashboard | Makes spend, savings, and incident-type cost drivers visible |
+| Projected ledger seed | Demonstrates dashboard behavior without paid model cycles |
 | Mock provider | Enables repeatable tests without paid API calls |
 | Optional OpenAI provider | Allows real provider execution without changing gateway flow |
 | Versioned pricing table | Makes cost estimates explainable and reproducible |
@@ -111,7 +157,7 @@ Cost estimates are local gateway estimates for budget control and demos. They do
 
 ## What It Does Not Do
 
-- It does not include production authentication.
+- It does not include production-grade authentication or authorization.
 - It does not provide a full admin billing UI.
 - It does not claim provider billing records are replaced by local estimates.
 - It does not require cloud deployment.
@@ -119,6 +165,8 @@ Cost estimates are local gateway estimates for budget control and demos. They do
 ## Tech Stack
 
 - Python
+- FastAPI
+- Streamlit
 - Pydantic
 - SQLite
 - OpenAI SDK
@@ -144,6 +192,8 @@ llm-cost-eval-gateway/
   examples/
     routing_policies.yaml
     run_gateway_demo.py
+    seed_projected_ledger.py
+  dashboard_app.py
   reports/
   tests/
 ```
@@ -178,6 +228,30 @@ The demo executes three representative requests under three routing policies:
 
 It writes a policy comparison report, a ledger summary report, and a local SQLite ledger so the cost, routing, and audit trail are visible.
 
+## Run Projected Ledger Dashboard
+
+To demonstrate spend analytics without invoking real providers, seed deterministic projected rows:
+
+```powershell
+C:\Users\rmcka\.local\bin\uv.exe run python examples\seed_projected_ledger.py
+```
+
+The default seed writes `12,000` realistic projected monthly ledger rows across the five RunbookOps incident types:
+
+- `schema_change`
+- `failed_import`
+- `stale_dashboard`
+- `duplicate_records`
+- `ambiguous_outage`
+
+Start the dashboard:
+
+```powershell
+C:\Users\rmcka\.local\bin\uv.exe run streamlit run dashboard_app.py --server.port 8502
+```
+
+The dashboard shows total estimated spend, strong-only baseline cost, estimated routing savings, savings rate, monthly savings run rate, annualized savings, model/route distribution, spend over time, raw ledger rows, and cost by incident type.
+
 ## Run API Server
 
 The gateway also exposes a small HTTP API. `GET /health` is public; `/v1/*` endpoints require an API key header.
@@ -202,7 +276,7 @@ Invoke-RestMethod `
   -Uri http://127.0.0.1:8600/v1/execute `
   -Headers @{ "X-Gateway-API-Key" = "local-dev-key" } `
   -ContentType "application/json" `
-  -Body '{"app_name":"demo","workflow_version":"v1","simulated_user_id":"user-1","simulated_team_id":"team-1","input_text":"routine import issue","route_policy":"routed"}'
+  -Body '{"app_name":"demo","workflow_version":"v1","simulated_user_id":"user-1","simulated_team_id":"team-1","input_text":"routine import issue","route_policy":"routed","metadata":{"incident_type":"failed_import"}}'
 ```
 
 Endpoints:
@@ -212,7 +286,7 @@ Endpoints:
 | `GET` | `/health` | Service health check |
 | `POST` | `/v1/execute` | Execute one gateway model request |
 | `GET` | `/v1/usage` | Return raw usage ledger rows |
-| `GET` | `/v1/usage/summary` | Return grouped usage summary as JSON |
+| `GET` | `/v1/usage/summary` | Return grouped usage summary as JSON, including incident-type cost summaries |
 | `GET` | `/v1/usage/summary.md` | Return grouped usage summary as Markdown |
 
 ## Core Flow
@@ -258,6 +332,8 @@ Metrics:
 - human-review rate
 - invalid-output rate
 - total estimated cost
+- estimated savings versus a strong-only baseline
+- cost by incident type
 - median latency
 - slowest latency
 - cost per acceptable automated result
@@ -271,8 +347,7 @@ This gateway is designed to support `team-ai-incident-triage`, a Streamlit app t
 This is a portfolio demonstration. Production use would require:
 
 - provider billing reconciliation
-- authentication
-- authorization
+- stronger authentication and authorization
 - secure deployment
 - monitoring
 - incident response procedures

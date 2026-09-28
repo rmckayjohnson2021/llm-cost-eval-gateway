@@ -17,6 +17,7 @@ def _record(request: ModelRequest, response: ModelResponse, ledger_path: str | N
     record_usage(
         UsageRecord(
             run_id=response.run_id,
+            incident_type=incident_type_from_metadata(request),
             app_name=request.app_name,
             workflow_version=request.workflow_version,
             simulated_team_id=request.simulated_team_id,
@@ -35,6 +36,14 @@ def _record(request: ModelRequest, response: ModelResponse, ledger_path: str | N
         ),
         path=ledger_path,
     )
+
+
+def incident_type_from_metadata(request: ModelRequest) -> str | None:
+    for key in ("incident_type", "category", "case_type"):
+        value = str(request.metadata.get(key, "")).strip()
+        if value:
+            return value
+    return None
 
 
 def execute(

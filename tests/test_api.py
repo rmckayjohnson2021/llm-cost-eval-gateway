@@ -40,6 +40,7 @@ def test_execute_endpoint_records_usage(monkeypatch, tmp_path):
             "simulated_team_id": "team-1",
             "input_text": "routine import issue",
             "route_policy": "routed",
+            "metadata": {"incident_type": "failed_import"},
         },
     )
 
@@ -51,6 +52,7 @@ def test_execute_endpoint_records_usage(monkeypatch, tmp_path):
     usage = client.get("/v1/usage", headers=AUTH_HEADERS).json()
     assert len(usage) == 1
     assert usage[0]["run_id"] == payload["run_id"]
+    assert usage[0]["incident_type"] == "failed_import"
 
 
 def test_usage_summary_endpoint(monkeypatch, tmp_path):
@@ -75,6 +77,8 @@ def test_usage_summary_endpoint(monkeypatch, tmp_path):
     summary = client.get("/v1/usage/summary", headers=AUTH_HEADERS).json()
     assert summary["total_rows"] == 1
     assert summary["by_status"][0]["status"] == "human_review"
+    assert summary["by_incident_type"][0]["incident_type"] == "-"
+    assert "optimization_savings" in summary
 
     markdown = client.get("/v1/usage/summary.md", headers=AUTH_HEADERS)
     assert markdown.status_code == 200

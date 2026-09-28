@@ -1,4 +1,5 @@
-﻿from typing import Any, Literal
+from datetime import UTC, datetime
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -37,6 +38,8 @@ class ModelResponse(BaseModel):
 
 class UsageRecord(BaseModel):
     run_id: str
+    created_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
+    incident_type: str | None = None
     app_name: str
     workflow_version: str
     simulated_team_id: str

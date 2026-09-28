@@ -2,6 +2,9 @@
 
 - Total rows: `9`
 - Total estimated cost: `$0.001597`
+- Strong-only baseline cost: `$0.002960`
+- Estimated routing savings: `$0.001363`
+- Savings rate: `46.0%`
 
 ## By Route
 
@@ -18,6 +21,14 @@
 | - | 1 | $0.000000 | 0 ms | 0 | 0 | 1 |
 | mock-fast | 4 | $0.000107 | 0 ms | 0 | 0 | 0 |
 | mock-strong | 4 | $0.001490 | 0 ms | 0 | 0 | 0 |
+
+## By Incident Type
+
+| Incident_Type | Calls | Estimated Cost | Median Latency | Failed | Blocked | Human Review |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ambiguous_outage | 3 | $0.000788 | 0 ms | 0 | 0 | 0 |
+| failed_import | 3 | $0.000412 | 0 ms | 0 | 0 | 0 |
+| schema_change | 3 | $0.000397 | 0 ms | 0 | 0 | 1 |
 
 ## By Status
 

@@ -18,7 +18,7 @@ LEDGER_PATH = "reports/gateway_demo_ledger.db"
 POLICIES = ["fast_only", "strong_only", "routed"]
 
 
-def demo_request(case_id: str, input_text: str, route_policy: str) -> ModelRequest:
+def demo_request(case_id: str, incident_type: str, input_text: str, route_policy: str) -> ModelRequest:
     return ModelRequest(
         app_name="runbookops-ai",
         workflow_version="v1",
@@ -26,7 +26,7 @@ def demo_request(case_id: str, input_text: str, route_policy: str) -> ModelReque
         simulated_team_id="ops-team",
         input_text=input_text,
         route_policy=route_policy,
-        metadata={"case_id": case_id},
+        metadata={"case_id": case_id, "incident_type": incident_type},
     )
 
 
@@ -50,9 +50,9 @@ def main() -> None:
         ledger_file.unlink()
 
     cases = [
-        ("case-routine", "Routine import issue with bounded impact."),
-        ("case-sev1", "SEV1 outage language detected for executive dashboard workflow."),
-        ("case-review", "Unclear ambiguous incident with conflicting service signals."),
+        ("case-routine", "failed_import", "Routine import issue with bounded impact."),
+        ("case-sev1", "ambiguous_outage", "SEV1 outage language detected for executive dashboard workflow."),
+        ("case-review", "schema_change", "Unclear ambiguous incident with conflicting service signals."),
     ]
     budget = BudgetState(limit_usd=0.25)
     responses_by_policy: dict[str, list[ModelResponse]] = {}
@@ -60,11 +60,11 @@ def main() -> None:
     for policy in POLICIES:
         responses_by_policy[policy] = [
             execute(
-                demo_request(case_id, input_text, policy),
+                demo_request(case_id, incident_type, input_text, policy),
                 budget=budget,
                 ledger_path=LEDGER_PATH,
             )
-            for case_id, input_text in cases
+            for case_id, incident_type, input_text in cases
         ]
 
     rows = fetch_usage(LEDGER_PATH)
@@ -72,9 +72,9 @@ def main() -> None:
 
     detail_rows = []
     for policy, responses in responses_by_policy.items():
-        for (case_id, _input_text), response in zip(cases, responses, strict=True):
+        for (case_id, incident_type, _input_text), response in zip(cases, responses, strict=True):
             detail_rows.append(
-                f"| {policy} | {case_id} | {response.route} | {response.status} | "
+                f"| {policy} | {case_id} | {incident_type} | {response.route} | {response.status} | "
                 f"{response.model or '-'} | {response.attempts} | "
                 f"${response.reserved_cost_usd:.6f} | ${response.estimated_cost_usd:.6f} | "
                 f"{response.route_reason} |"
@@ -105,8 +105,8 @@ def main() -> None:
                 "",
                 "## Request-Level Results",
                 "",
-                "| Policy | Case | Route | Status | Model | Attempts | Reserved | Estimated | Reason |",
-                "| --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |",
+                "| Policy | Case | Incident Type | Route | Status | Model | Attempts | Reserved | Estimated | Reason |",
+                "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |",
                 *detail_rows,
                 "",
                 "## Budget State",
