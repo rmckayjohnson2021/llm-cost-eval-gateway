@@ -273,6 +273,7 @@ Set a local API key:
 
 ```ini
 GATEWAY_API_KEY=local-dev-key
+GATEWAY_LEDGER_PATH=C:\Dev\repos\llm-cost-eval-gateway\reports\runbookops_gateway_ledger.db
 ```
 
 Start the server:
@@ -280,6 +281,8 @@ Start the server:
 ```powershell
 uv run uvicorn gateway.api:app --reload --port 8600
 ```
+
+When demonstrating the paired RunbookOps app, start the dashboard with the same `GATEWAY_LEDGER_PATH` so API calls and dashboard charts read from one ledger.
 
 Call the API:
 

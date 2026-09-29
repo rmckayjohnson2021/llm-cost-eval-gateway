@@ -17,6 +17,7 @@ AUTHOR_AVATAR_PATH = PROJECT_ROOT / "app" / "assets" / "author_avatar.png"
 OWNER_NAME = "Ryan Johnson"
 OWNER_EMAIL = "rmckayjohnson2021@gmail.com"
 GITHUB_PROFILE_URL = "https://github.com/rmckayjohnson2021"
+LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/mckayjohnson"
 REPO_URL = "https://github.com/rmckayjohnson2021/llm-cost-eval-gateway"
 COMPANION_REPO_URL = "https://github.com/rmckayjohnson2021/team-ai-incident-triage"
 
@@ -181,13 +182,14 @@ def render_sidebar(total_rows: int, incident_summary: pd.DataFrame) -> None:
         st.toggle("Usage ledger", value=True, disabled=True, help="Each request writes cost, route, status, model, and incident type.")
         st.toggle("Savings model", value=True, disabled=True, help="The dashboard estimates savings against a strong-only baseline.")
 
-        st.subheader("Builder", icon=":material/person:")
+        st.subheader("Author", icon=":material/person:")
         author_image, author_text = st.columns([0.34, 0.66], vertical_alignment="center")
         if AUTHOR_AVATAR_PATH.exists():
             author_image.image(str(AUTHOR_AVATAR_PATH), width=82)
         author_text.markdown(f"**{OWNER_NAME}**")
         author_text.caption("AI workflow builder")
         st.markdown(f"[GitHub]({GITHUB_PROFILE_URL})")
+        st.markdown(f"[LinkedIn]({LINKEDIN_PROFILE_URL})")
         st.markdown(f"[Repository]({REPO_URL})")
 
 
@@ -305,7 +307,10 @@ def render_footer() -> None:
         left, right = st.columns([0.48, 0.52], gap="large", vertical_alignment="center")
         with left:
             st.caption("Project artifact")
-            st.markdown(f"**{OWNER_NAME}** | [Email](mailto:{OWNER_EMAIL}) | [GitHub]({GITHUB_PROFILE_URL})")
+            st.markdown(
+                f"**{OWNER_NAME}** | [Email](mailto:{OWNER_EMAIL}) | "
+                f"[GitHub]({GITHUB_PROFILE_URL}) | [LinkedIn]({LINKEDIN_PROFILE_URL})"
+            )
         with right:
             st.caption(
                 f"[Source repository]({REPO_URL}) | [Companion triage app]({COMPANION_REPO_URL})",

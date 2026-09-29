@@ -1,3 +1,4 @@
+import json
 import os
 from dataclasses import dataclass
 from typing import Any, Protocol
@@ -48,7 +49,7 @@ class MockProvider:
             return ProviderResult(text="not-json", input_tokens=10, output_tokens=3)
 
         return ProviderResult(
-            text="mock response",
+            text=mock_response_text(prompt),
             input_tokens=max(1, len(prompt.split())),
             output_tokens=10,
         )
@@ -96,6 +97,51 @@ class OpenAIProvider:
 def configured_api_key() -> str | None:
     value = os.getenv("OPENAI_API_KEY", "").strip()
     return None if value in PLACEHOLDER_VALUES else value
+
+
+def mock_response_text(prompt: str) -> str:
+    lower_prompt = prompt.lower()
+    if "incidentanalysis" not in lower_prompt and "review_status" not in lower_prompt:
+        return "mock response"
+
+    category = "failed_import"
+    severity = "sev3"
+    source_runbook = "failed_import.md"
+    recommendation = "Validate the source file, compare expected row counts, correct the import issue, and rerun the job."
+
+    if any(term in lower_prompt for term in ("schema", "column", "field", "loyalty_tier")):
+        category = "schema_change"
+        severity = "sev2"
+        source_runbook = "schema_change.md"
+        recommendation = (
+            "Validate whether the column change is expected, update the parser or mapping, "
+            "and rerun the import after review."
+        )
+    elif any(term in lower_prompt for term in ("duplicate", "replay", "upsert")):
+        category = "duplicate_records"
+        severity = "sev3"
+        source_runbook = "duplicate_records.md"
+        recommendation = "Identify duplicate keys, isolate the affected window, and rerun with corrected deduplication logic."
+    elif any(term in lower_prompt for term in ("dashboard", "refresh", "stale", "bi")):
+        category = "stale_dashboard"
+        severity = "sev3"
+        source_runbook = "stale_dashboard.md"
+        recommendation = "Confirm warehouse freshness, rerun the BI refresh, and notify stakeholders if stale data persists."
+
+    return json.dumps(
+        {
+            "category": category,
+            "severity": severity,
+            "summary": f"Mock gateway analysis classified the incident as {category}.",
+            "evidence": ["Gateway mock provider returned structured output for local integration testing."],
+            "recommendation": recommendation,
+            "source_runbooks": [source_runbook],
+            "route": "strong_model" if severity in {"sev1", "sev2"} else "fast_model",
+            "route_reason": "Local gateway mock response for integration testing.",
+            "review_status": "approved",
+            "workflow_version": "v1.0.0",
+        }
+    )
 
 
 def configured_provider_name() -> str:

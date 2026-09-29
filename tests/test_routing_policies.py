@@ -50,6 +50,19 @@ def test_routed_policy_sends_high_impact_work_to_strong_model():
     assert decision.model == "mock-strong"
 
 
+def test_routed_policy_uses_metadata_routing_text_before_prompt_text():
+    request = make_request(
+        "Prompt instructions mention unclear ambiguous evidence, but that is not the incident.",
+        "routed",
+    )
+    request.metadata["routing_text"] = "schema validation failed after vendor added loyalty_tier column"
+
+    decision = choose_route(request)
+
+    assert decision.route == "strong_model"
+    assert decision.model == "mock-strong"
+
+
 def test_unknown_policy_fails_with_available_names():
     with pytest.raises(ValueError, match="fast_only"):
         get_policy("missing_policy")

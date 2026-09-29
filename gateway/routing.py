@@ -4,7 +4,8 @@ from gateway.schemas import ModelRequest, RoutingDecision
 
 def choose_route(request: ModelRequest) -> RoutingDecision:
     policy = get_policy(request.route_policy)
-    text = request.input_text.lower()
+    routing_text = str(request.metadata.get("routing_text") or request.input_text)
+    text = routing_text.lower()
 
     review_signal = contains_signal(text, policy.human_review_signals)
     if review_signal:

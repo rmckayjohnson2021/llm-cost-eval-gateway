@@ -29,6 +29,7 @@ policies:
       - outage
       - executive
       - payroll
+      - schema validation
 
   openai_routed:
     description: Optional real-provider policy that resolves model aliases from DEFAULT_FAST_MODEL and DEFAULT_STRONG_MODEL.
@@ -44,3 +45,4 @@ policies:
       - outage
       - executive
       - payroll
+      - schema validation

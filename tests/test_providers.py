@@ -1,3 +1,5 @@
+import json
+
 from gateway.providers import (
     MockProvider,
     OpenAIProvider,
@@ -47,3 +49,18 @@ def test_openai_alias_resolves_from_environment(monkeypatch):
     monkeypatch.setenv("DEFAULT_FAST_MODEL", "gpt-5-mini")
 
     assert resolve_openai_model("openai-fast") == "gpt-5-mini"
+
+
+def test_mock_provider_returns_structured_triage_payload_for_incident_analysis_prompt():
+    provider = MockProvider()
+
+    result = provider.complete(
+        "Return structured JSON matching the IncidentAnalysis schema. Incident: loyalty_tier column appeared.",
+        "mock-strong",
+        100,
+    )
+    payload = json.loads(result.text)
+
+    assert payload["category"] == "schema_change"
+    assert payload["severity"] == "sev2"
+    assert payload["review_status"] == "approved"
