@@ -177,7 +177,7 @@ def render_sidebar(total_rows: int, incident_summary: pd.DataFrame) -> None:
             border=True,
         )
 
-        st.subheader("Controls", icon=":material/tune:")
+        st.subheader("Capabilities", icon=":material/tune:")
         st.toggle("Authenticated API", value=True, disabled=True, help="The /v1 endpoints require X-Gateway-API-Key.")
         st.toggle("Usage ledger", value=True, disabled=True, help="Each request writes cost, route, status, model, and incident type.")
         st.toggle("Savings model", value=True, disabled=True, help="The dashboard estimates savings against a strong-only baseline.")
