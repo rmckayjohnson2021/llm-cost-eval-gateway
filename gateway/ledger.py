@@ -1,3 +1,4 @@
+import re
 import sqlite3
 import tempfile
 from pathlib import Path
@@ -5,27 +6,51 @@ from pathlib import Path
 from gateway.schemas import UsageRecord
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+TEMP_ROOT = Path(tempfile.gettempdir()).resolve()
 ALLOWED_LEDGER_ROOTS = (
     (PROJECT_ROOT / "data").resolve(),
     (PROJECT_ROOT / "reports").resolve(),
-    Path(tempfile.gettempdir()).resolve(),
+    TEMP_ROOT,
 )
+SAFE_PATH_SEGMENT = re.compile(r"^[A-Za-z0-9_.-]+$")
+
+
+def normalized_path_text(path: str) -> str:
+    return path.strip().replace("\\", "/").rstrip("/")
+
+
+def validate_relative_db_path(relative_path: str) -> list[str]:
+    parts = relative_path.split("/")
+    if not parts or parts[-1] == "":
+        raise ValueError("Ledger path must point to a .db file.")
+    if not parts[-1].endswith(".db"):
+        raise ValueError("Ledger path must point to a .db file.")
+    if any(part in {"", ".", ".."} or not SAFE_PATH_SEGMENT.fullmatch(part) for part in parts):
+        raise ValueError("Ledger path contains an unsafe path segment.")
+    return parts
 
 
 def resolve_ledger_path(path: str = "data/ledger.db") -> Path:
-    candidate = Path(path).expanduser()
-    if not candidate.is_absolute():
-        candidate = PROJECT_ROOT / candidate
-    db_path = candidate.resolve(strict=False)
+    path_text = normalized_path_text(path)
+    project_root_text = PROJECT_ROOT.as_posix()
+    temp_root_text = TEMP_ROOT.as_posix()
 
-    if db_path.suffix != ".db":
-        raise ValueError("Ledger path must point to a .db file.")
+    if path_text.startswith(f"{project_root_text}/"):
+        relative_path = path_text.removeprefix(f"{project_root_text}/")
+        if not relative_path.startswith(("data/", "reports/")):
+            allowed = ", ".join(str(root) for root in ALLOWED_LEDGER_ROOTS)
+            raise ValueError(f"Ledger path must be under an approved directory: {allowed}")
+        return PROJECT_ROOT.joinpath(*validate_relative_db_path(relative_path))
 
-    if not any(db_path == root or db_path.is_relative_to(root) for root in ALLOWED_LEDGER_ROOTS):
-        allowed = ", ".join(str(root) for root in ALLOWED_LEDGER_ROOTS)
-        raise ValueError(f"Ledger path must be under an approved directory: {allowed}")
+    if path_text.startswith(f"{temp_root_text}/"):
+        relative_path = path_text.removeprefix(f"{temp_root_text}/")
+        return TEMP_ROOT.joinpath(*validate_relative_db_path(relative_path))
 
-    return db_path
+    if path_text.startswith(("data/", "reports/")):
+        return PROJECT_ROOT.joinpath(*validate_relative_db_path(path_text))
+
+    allowed = ", ".join(str(root) for root in ALLOWED_LEDGER_ROOTS)
+    raise ValueError(f"Ledger path must be under an approved directory: {allowed}")
 
 
 def init_ledger(path: str = "data/ledger.db") -> Path:

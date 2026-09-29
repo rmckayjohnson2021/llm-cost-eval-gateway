@@ -20,6 +20,16 @@ def test_resolve_ledger_path_rejects_non_db_file(tmp_path):
         resolve_ledger_path(str(tmp_path / "usage.sqlite"))
 
 
+def test_resolve_ledger_path_rejects_path_traversal():
+    with pytest.raises(ValueError, match="unsafe path segment"):
+        resolve_ledger_path("reports/../outside.db")
+
+
+def test_resolve_ledger_path_rejects_unsafe_segment_characters():
+    with pytest.raises(ValueError, match="unsafe path segment"):
+        resolve_ledger_path("reports/bad;name.db")
+
+
 def test_resolve_ledger_path_rejects_unapproved_directory():
     outside_project = PROJECT_ROOT.parent / "outside-ledger.db"
 
