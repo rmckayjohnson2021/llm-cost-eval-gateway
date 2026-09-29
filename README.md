@@ -34,6 +34,10 @@ This repo is a working version 1 gateway with mock-provider execution, optional 
 
 AI applications often start by calling a model directly from the product workflow. That works for prototypes, but teams quickly need shared controls around model choice, cost exposure, retries, evaluation, and auditability. This gateway demonstrates those controls as a reusable layer.
 
+## Companion Project
+
+This gateway is designed to support [`team-ai-incident-triage`](https://github.com/rmckayjohnson2021/team-ai-incident-triage), a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
+
 ## What It Does
 
 - Provides one central executor for model calls.
@@ -354,9 +358,6 @@ Metrics:
 - slowest latency
 - cost per acceptable automated result
 
-## Companion Project
-
-This gateway is designed to support [`team-ai-incident-triage`](https://github.com/rmckayjohnson2021/team-ai-incident-triage), a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
 
 ## Limitations
 
