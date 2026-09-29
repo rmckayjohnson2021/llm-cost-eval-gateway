@@ -28,7 +28,7 @@ The goal is not to claim provider billing accuracy. The goal is to show how a ga
 
 ## Project Status
 
-This repo is a working version 1 gateway with mock-provider execution, optional OpenAI-backed execution, configuration-driven routing policies, API-key protected local endpoints, budget reservation, retry handling, SQLite usage logging, a usage dashboard, projected ledger seeding, and runnable demo reports. It is designed to become the companion execution layer for RunbookOps AI.
+This repo is a working version 1 gateway with mock-provider execution, optional OpenAI-backed execution, configuration-driven routing policies, API-key protected local endpoints, budget reservation, retry handling, SQLite usage logging, a usage dashboard, projected ledger seeding, runnable demo reports, and HTTP integration with RunbookOps AI.
 
 ## Why This Exists
 
@@ -36,7 +36,7 @@ AI applications often start by calling a model directly from the product workflo
 
 ## Companion Project
 
-This gateway is designed to support [`team-ai-incident-triage`](https://github.com/rmckayjohnson2021/team-ai-incident-triage), a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
+This gateway supports [`team-ai-incident-triage`](https://github.com/rmckayjohnson2021/team-ai-incident-triage), a Streamlit app that triages synthetic data-pipeline incidents using approved runbooks.
 
 ## What It Does
 
@@ -117,6 +117,7 @@ node scripts\capture_dashboard_screenshots.js
 | Budget commit/release | Prevents failed calls from leaving stale reservations |
 | YAML routing policies | Lets teams tune model choice without changing app code |
 | SQLite usage ledger | Provides local auditability without cloud services |
+| Approved ledger paths | Restricts ledger writes to the repo `data/`, repo `reports/`, or system temp directories |
 | Markdown ledger summaries | Turns stored usage rows into reviewer-friendly cost and routing reports |
 | Streamlit dashboard | Makes spend, savings, and incident-type cost drivers visible |
 | Projected ledger seed | Demonstrates dashboard behavior without paid model cycles |
@@ -279,6 +280,8 @@ Set a local API key:
 GATEWAY_API_KEY=local-dev-key
 GATEWAY_LEDGER_PATH=C:\Dev\repos\llm-cost-eval-gateway\reports\runbookops_gateway_ledger.db
 ```
+
+Ledger paths are intentionally restricted to approved local locations: the repo `data/` directory, the repo `reports/` directory, or the system temp directory used by tests.
 
 Start the server:
 
