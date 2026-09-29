@@ -1,11 +1,35 @@
 import sqlite3
+import tempfile
 from pathlib import Path
 
 from gateway.schemas import UsageRecord
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+ALLOWED_LEDGER_ROOTS = (
+    (PROJECT_ROOT / "data").resolve(),
+    (PROJECT_ROOT / "reports").resolve(),
+    Path(tempfile.gettempdir()).resolve(),
+)
 
-def init_ledger(path: str = "data/ledger.db") -> None:
-    db_path = Path(path)
+
+def resolve_ledger_path(path: str = "data/ledger.db") -> Path:
+    candidate = Path(path).expanduser()
+    if not candidate.is_absolute():
+        candidate = PROJECT_ROOT / candidate
+    db_path = candidate.resolve(strict=False)
+
+    if db_path.suffix != ".db":
+        raise ValueError("Ledger path must point to a .db file.")
+
+    if not any(db_path == root or db_path.is_relative_to(root) for root in ALLOWED_LEDGER_ROOTS):
+        allowed = ", ".join(str(root) for root in ALLOWED_LEDGER_ROOTS)
+        raise ValueError(f"Ledger path must be under an approved directory: {allowed}")
+
+    return db_path
+
+
+def init_ledger(path: str = "data/ledger.db") -> Path:
+    db_path = resolve_ledger_path(path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     with sqlite3.connect(db_path) as conn:
@@ -37,11 +61,12 @@ def init_ledger(path: str = "data/ledger.db") -> None:
             conn.execute("ALTER TABLE usage_ledger ADD COLUMN created_at TEXT NOT NULL DEFAULT ''")
         if "incident_type" not in columns:
             conn.execute("ALTER TABLE usage_ledger ADD COLUMN incident_type TEXT")
+    return db_path
 
 
 def record_usage(record: UsageRecord, path: str = "data/ledger.db") -> None:
-    init_ledger(path)
-    with sqlite3.connect(path) as conn:
+    db_path = init_ledger(path)
+    with sqlite3.connect(db_path) as conn:
         conn.execute(
             """
             INSERT INTO usage_ledger (
@@ -88,8 +113,8 @@ def record_usage(record: UsageRecord, path: str = "data/ledger.db") -> None:
 
 
 def fetch_usage(path: str = "data/ledger.db") -> list[dict]:
-    init_ledger(path)
-    with sqlite3.connect(path) as conn:
+    db_path = init_ledger(path)
+    with sqlite3.connect(db_path) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
             """
